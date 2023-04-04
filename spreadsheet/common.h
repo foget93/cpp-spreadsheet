@@ -23,7 +23,7 @@ struct Position {
 
     static const int MAX_ROWS = 16384;
     static const int MAX_COLS = 16384;
-    static const Position NONE;
+    static const Position NONE; // in structures.cpp {-1, -1}
 };
 
 struct Size {

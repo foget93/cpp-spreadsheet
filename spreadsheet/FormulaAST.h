@@ -15,6 +15,17 @@ class ParsingError : public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
+class FormulaErrorException : public std::exception {
+public:
+    FormulaErrorException(FormulaError error)
+        : error_(error) {}
+    FormulaError GetError() const {
+        return error_;
+    }
+private:
+    FormulaError error_;
+};
+
 class FormulaAST {
 public:
     explicit FormulaAST(std::unique_ptr<ASTImpl::Expr> root_expr,
@@ -23,7 +34,7 @@ public:
     FormulaAST& operator=(FormulaAST&&) = default;
     ~FormulaAST();
 
-    double Execute(/*добавьте нужные аргументы*/ args) const;
+    double Execute(const SheetInterface& sheet) const;
     void PrintCells(std::ostream& out) const;
     void Print(std::ostream& out) const;
     void PrintFormula(std::ostream& out) const;

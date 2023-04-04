@@ -3,15 +3,14 @@
 #include "common.h"
 #include "formula.h"
 
+#include <optional>
 #include <functional>
+#include <unordered_map>
 #include <unordered_set>
 
-class Sheet;
-
-class Cell : public CellInterface {
+class Cell final : public CellInterface {
 public:
-    Cell(Sheet& sheet);
-    ~Cell();
+    Cell(SheetInterface& owner);
 
     void Set(std::string text);
     void Clear();
@@ -20,17 +19,62 @@ public:
     std::string GetText() const override;
     std::vector<Position> GetReferencedCells() const override;
 
-    bool IsReferenced() const;
-
 private:
-    class Impl;
-    class EmptyImpl;
-    class TextImpl;
-    class FormulaImpl;
 
+    class Impl {
+    public:
+        virtual Value GetValue(const SheetInterface& owner) const = 0;
+        virtual std::string GetText() const = 0;
+        virtual void ClearCache() {};
+        virtual bool HasCache() const;
+        virtual std::vector<Position> GetReferencedCells() const;
+        virtual ~Impl() = default;
+    };
+
+    class EmptyImpl final : public Impl {
+    public:
+        virtual Value GetValue(const SheetInterface& owner) const override;
+        virtual std::string GetText() const override;
+    };
+
+    class TextImpl final : public Impl {
+    public:
+        TextImpl(std::string text);
+        virtual Value GetValue(const SheetInterface& owner) const override;
+        virtual std::string GetText() const override;
+
+    private:
+        std::string text_;
+    };
+
+    class FormulaImpl final : public Impl {
+    public:
+        FormulaImpl(std::string text);
+        virtual Value GetValue(const SheetInterface& owner) const override;
+        virtual std::string GetText() const override;
+        virtual void ClearCache() override;
+        virtual bool HasCache() const override ;
+        virtual std::vector<Position> GetReferencedCells() const override;
+
+    private:
+        std::unique_ptr<FormulaInterface> formula_;
+        mutable std::optional<Value> cache_;
+    };
+
+    void ClearCaсhe();
+
+    void AddChilds();
+    void AddParentness();
+    void AddParent(Cell* parent);
+
+    void RemoveParentness();
+    void RemoveParent(Cell* parent);
+
+    bool CircularDependencyFound(Cell* target, const std::unordered_set<Cell*>& childs) const;
+
+    SheetInterface& owner_;
     std::unique_ptr<Impl> impl_;
-
-    // Добавьте поля и методы для связи с таблицей, проверки циклических 
-    // зависимостей, графа зависимостей и т. д.
+    std::unordered_set<Cell*> childs_;
+    std::unordered_set<Cell*> parents_;
 
 };
