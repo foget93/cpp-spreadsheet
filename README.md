@@ -6,10 +6,12 @@
 2) cpp-spreadsheet % cd build
 3) build % cmake ../spreadsheet
 4) build % cmake --build .
+
 Проверка сборки (запуск тестов):
 1) build % ./spreadsheet
 
 Ожидание: 
+
 TestPositionAndStringConversion OK
 TestPositionToStringInvalid OK
 TestStringToPositionInvalid OK
