@@ -1,5 +1,5 @@
 # cpp-spreadsheet
-Дипломный проект: Электронная таблица
+Проект: Электронная таблица
 
 Сборка CMAKE(MacOS or Unix):
 1) cpp-spreadsheet % mkdir build
